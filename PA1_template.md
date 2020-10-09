@@ -5,20 +5,20 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Loading and preprocessing the data
 
-```{r, message=FALSE}
+
+```r
 library(tidyverse)
 activity <- read_csv("activity.zip")
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r per_day, message=FALSE, results = "hide"}
+
+```r
 activity_by_day <- activity %>% 
       group_by(date) %>%
       summarise(steps = sum(steps, na.rm = TRUE )) 
@@ -35,16 +35,18 @@ activity_by_day %>%
             geom_text(aes(x=median_steps_by_day, label=paste("median:", round(median_steps_by_day), "steps"), y=3), vjust=-0.3, colour="black", angle=90, size=3 ) + 
             labs(title = "Histogram of the total number of steps taken each day") +
             theme_bw()
-
 ```
+
+![](PA1_template_files/figure-html/per_day-1.png)<!-- -->
   
-The *mean* steps taken per day is **`r format(mean_steps_by_day, nsmall=0)` steps** and the *median* is **`r format(median_steps_by_day, nsmall=0)` steps**.
+The *mean* steps taken per day is **9354.23 steps** and the *median* is **10395 steps**.
 
 &nbsp;  
 &nbsp;  
 
 ## What is the average daily activity pattern?
-```{r, message=FALSE}
+
+```r
 activity_by_interval <- activity %>% 
       group_by(interval) %>%
       summarise(avg_steps = mean(steps, na.rm = TRUE))
@@ -55,12 +57,16 @@ activity_by_interval %>%
             xlab(label = "5-minute interval") + 
             ylab(label = "Avg. steps taken") + 
             labs(title = "Average daily activity pattern")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 max_interval <- with(activity_by_interval,
                         interval[which.max(avg_steps)]
 )                     
 ```
-The interval **`r max_interval`** contains the maximum number of steps taken **`r round(max(activity_by_interval$avg_steps))`**.
+The interval **835** contains the maximum number of steps taken **206**.
 
 &nbsp;  
 &nbsp;  
@@ -68,15 +74,17 @@ The interval **`r max_interval`** contains the maximum number of steps taken **`
 
 ## Imputing missing values
 
-```{r}
+
+```r
 missing_steps <- sum(is.na(activity$steps))
 per_missing_steps <- mean(is.na(activity$steps))
 ```
 
-There is **`r missing_steps` missing values** (NAs) that represent **`r round(per_missing_steps*100, 1)`% of the total**.  
+There is **2304 missing values** (NAs) that represent **13.1% of the total**.  
 &nbsp;  
 
-```{r, message=FALSE, results = "hide"}
+
+```r
 library(impute)
 library(lubridate)
 activity_weekd <- activity %>%
@@ -102,10 +110,11 @@ activity_by_day %>%
             geom_text(aes(x=median_steps_nona_by_day, label=paste("median:", round(median_steps_nona_by_day), "steps"), y=3), vjust=1.1, colour="black", angle=90, size=3 ) + 
             labs(title = "Histogram of the total number of steps taken each day") +
             theme_bw()
-
 ```
 
-The *mean* steps taken per day is **`r format(mean_steps_nona_by_day, nsmall=0)` steps** and the *median* is **`r format(median_steps_nona_by_day, nsmall=0)` steps**.  
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+The *mean* steps taken per day is **10121.59 steps** and the *median* is **10395 steps**.  
 
 Imputing the missing data had the effect of reducing the day with zero activity. And bringing the mean and median closer together.
 &nbsp;  
@@ -113,7 +122,8 @@ Imputing the missing data had the effect of reducing the day with zero activity.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r, message=FALSE, results = "hide"}
+
+```r
 activity_nona$weekend <- (wday(activity_nona$date, week_start = 1) >= 6)
 activity_nona$weekend <- as.factor(activity_nona$weekend)
 levels(activity_nona$weekend) <- c("weekday", "weekend")
@@ -128,4 +138,6 @@ activity_nona %>%
             ylab(label = "Avg. number of steps taken") + 
             labs(title = "Average daily activity pattern")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
